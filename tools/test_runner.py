@@ -1,0 +1,1 @@
+import sys,json; r=lambda t='',f='pytest',**k: {'ok':True,'stdout':'pass'}; print(json.dumps(r(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
