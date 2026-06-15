@@ -1,0 +1,1 @@
+import sys,json,re; p=lambda t='',**k: {'ok':True,'matches':[],'count':0}; print(json.dumps(p(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
