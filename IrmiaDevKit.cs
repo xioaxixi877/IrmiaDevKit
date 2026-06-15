@@ -14,16 +14,27 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
 {
     private static readonly string toolsDir = Path.Combine(
         AppDomain.CurrentDomain.BaseDirectory,
-        "Plugins", "Alife.Plugin.IrmiaDevKit", "tools");
+        "Plugins",
+        "Alife.Plugin.IrmiaDevKit",
+        "tools"
+    );
 
     private string FindPython()
     {
-        foreach (var path in new[] { "python", "python3", "C:\Python312\python.exe", "C:\Users\Ha1hai\AppData\Local\Programs\Python\Python312\python.exe" })
+        var paths = new[] { "python", "python3" };
+        foreach (var path in paths)
         {
             try
             {
-                using var proc = Process.Start(new ProcessStartInfo(path, "--version") { RedirectStandardOutput = true, CreateNoWindow = true });
-                if (proc != null) { proc.WaitForExit(2000); if (proc.ExitCode == 0) return path; }
+                var psi = new ProcessStartInfo(path, "--version");
+                psi.RedirectStandardOutput = true;
+                psi.CreateNoWindow = true;
+                using var proc = Process.Start(psi);
+                if (proc != null)
+                {
+                    proc.WaitForExit(2000);
+                    if (proc.ExitCode == 0) return path;
+                }
             }
             catch { }
         }
@@ -34,20 +45,20 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
     {
         var py = FindPython();
         var script = Path.Combine(toolsDir, name + ".py");
-        if (!File.Exists(script)) return $"工具 {name}.py 不存在";
-        var psi = new ProcessStartInfo(py, $""{script}" {args}")
-        {
-            RedirectStandardOutput = true,
-            RedirectStandardError = true,
-            CreateNoWindow = true,
-            StandardOutputEncoding = System.Text.Encoding.UTF8,
-            StandardErrorEncoding = System.Text.Encoding.UTF8
-        };
+        if (!File.Exists(script)) return "工具 " + name + ".py 不存在";
+        var psi = new ProcessStartInfo(py, """ + script + "" " + args);
+        psi.RedirectStandardOutput = true;
+        psi.RedirectStandardError = true;
+        psi.CreateNoWindow = true;
+        psi.StandardOutputEncoding = System.Text.Encoding.UTF8;
+        psi.StandardErrorEncoding = System.Text.Encoding.UTF8;
         using var proc = Process.Start(psi);
+        if (proc == null) return "启动失败";
         proc.WaitForExit(60000);
         var output = proc.StandardOutput.ReadToEnd().Trim();
         var error = proc.StandardError.ReadToEnd().Trim();
-        return string.IsNullOrEmpty(output) ? error : output;
+        if (!string.IsNullOrEmpty(output)) return output;
+        return error;
     }
 
     [XmlFunction(FunctionMode.OneShot)]
@@ -56,10 +67,10 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
     {
         try
         {
-            if (!Directory.Exists(toolsDir)) return $"tools目录不存在: {toolsDir}";
+            if (!Directory.Exists(toolsDir)) return "tools目录不存在: " + toolsDir;
             return RunTool(toolName, toolArgs);
         }
-        catch (Exception ex) { return $"执行失败: {ex.Message}"; }
+        catch (Exception ex) { return "执行失败: " + ex.Message; }
     }
 
     [XmlFunction(FunctionMode.OneShot)]
@@ -68,12 +79,10 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
     {
         try
         {
-            if (!Directory.Exists(toolsDir)) return $"tools目录不存在: {toolsDir}";
+            if (!Directory.Exists(toolsDir)) return "tools目录不存在: " + toolsDir;
             var tools = Directory.GetFiles(toolsDir, "*.py").Select(Path.GetFileNameWithoutExtension).OrderBy(x => x).ToList();
-            return $"共 {tools.Count} 个工具:
-{string.Join("
-", tools)}";
+            return "共 " + tools.Count + " 个工具:\n" + string.Join("\n", tools);
         }
-        catch (Exception ex) { return $"获取工具列表失败: {ex.Message}"; }
+        catch (Exception ex) { return "获取工具列表失败: " + ex.Message; }
     }
 }
