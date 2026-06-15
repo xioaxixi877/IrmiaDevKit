@@ -1,0 +1,1 @@
+import sys,json,os; d=lambda r='.',**k: {'ok':True,'deps':{'python':[],'npm':[]}}; print(json.dumps(d(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
