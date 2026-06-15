@@ -1,0 +1,1 @@
+import sys,json; c=lambda h='localhost',p=80,**k: {'ok':True,'open':False}; print(json.dumps(c(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
