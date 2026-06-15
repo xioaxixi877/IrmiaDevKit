@@ -1,0 +1,25 @@
+{
+  "Id": "IrmiaDevKit",
+  "Name": "IrmiaDevKit",
+  "Description": "将弥亚开发工具箱移植为46个Python工具，提供文件操作、搜索、Git、数据库、HTTP、系统、数据处理、GitHub API等开发辅助功能",
+  "Version": "1.0.0",
+  "Authors": [
+    "Jiangtangxi"
+  ],
+  "Modules": [
+    {
+      "Name": "IrmiaDevKit",
+      "Description": "集成46个开发工具，通过XmlFunctionCaller注册所有功能调用",
+      "Type": "Module",
+      "Source": "IrmiaDevKit.cs"
+    }
+  ],
+  "Dependencies": [],
+  "Tags": [
+    "tools",
+    "github",
+    "development",
+    "utilities"
+  ],
+  "InstallPath": "IrmiaDevKit"
+}
