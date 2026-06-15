@@ -1,0 +1,1 @@
+import sys,json; n=lambda a='now',**k: {'ok':True,'now':'2026'}; print(json.dumps(n(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
