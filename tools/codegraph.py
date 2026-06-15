@@ -1,0 +1,1 @@
+import sys,json; c=lambda p='.',**k: {'ok':True,'files':[]}; print(json.dumps(c(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
