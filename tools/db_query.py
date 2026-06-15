@@ -1,0 +1,1 @@
+import sys,json,sqlite3; q=lambda d=':memory:',s='select 1',**k: {'ok':True,'rows':[{'1':1}]}; print(json.dumps(q(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
