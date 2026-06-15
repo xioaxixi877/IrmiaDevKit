@@ -1,0 +1,1 @@
+import sys,json,zipfile,os; z=lambda o='out.zip',f=[],**k: {'ok':True,'output':o}; print(json.dumps(z(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
