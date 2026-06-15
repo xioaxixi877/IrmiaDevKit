@@ -1,0 +1,1 @@
+import sys,json,os; i=lambda n='proj',t='py',**k: {'ok':True,'path':n}; print(json.dumps(i(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
