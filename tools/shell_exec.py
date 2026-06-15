@@ -1,0 +1,1 @@
+import sys,json,subprocess; e=lambda c='echo ok',**k: {'ok':True,'stdout':subprocess.run(['cmd','/c',c],capture_output=True,text=True).stdout}; print(json.dumps(e(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
