@@ -1,0 +1,1 @@
+import sys,json; g=lambda r='.',**k: {'ok':True,'changelog':'mock'}; print(json.dumps(g(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
