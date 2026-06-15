@@ -13,7 +13,7 @@ using Alife.Function.Interpreter;
 
 namespace Alife.Plugin.IrmiaDevKit;
 
-[Module("IrmiaDevKit", description: "IrmiaDevKit - 弥亚开发工具箱，提供46个Python开发工具")]
+[Module("AlifePluginIrmiaDevKit", description: "IrmiaDevKit - 弥亚开发工具箱，提供46个Python开发工具")]
 public class IrmiaDevKitModule : InteractiveModule<IrmiaDevKitModule>
 {
     private string _toolsDir;
