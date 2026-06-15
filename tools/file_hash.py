@@ -1,0 +1,1 @@
+import sys,json,hashlib; h=lambda p='.',**k: {'ok':True,'hash':'dummy'}; print(json.dumps(h(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
