@@ -10,6 +10,11 @@
       "date": "2026-06-15",
       "note": "统一命名为Alife.Plugin.IrmiaDevKit",
       "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
+    },
+    "1.0.5": {
+      "date": "2026-06-15",
+      "note": "补充release字段 修复安装问题",
+      "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
     }
   },
   "version": "1.0.5"
