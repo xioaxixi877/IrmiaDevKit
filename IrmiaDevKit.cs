@@ -12,7 +12,7 @@ using Alife.Platform;
 namespace IrmiaDevKit
 {
     [Module("IrmiaDevKit", description: "IrmiaDevKit - 弥亚开发工具箱，提供46个Python开发工具")]
-    public class IrmiaDevKitModule : InteractiveModule
+    public class IrmiaDevKitModule : InteractiveModule<IrmiaDevKitModule>
     {
         private readonly Dictionary<string, Func<JObject, Task<string>>> _tools = new();
         private string _toolsDir;
