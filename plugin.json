@@ -11,5 +11,6 @@
       "note": "统一命名为Alife.Plugin.IrmiaDevKit",
       "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
     }
-  }
+  },
+  "version": "1.0.5"
 }
