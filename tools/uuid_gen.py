@@ -1,0 +1,1 @@
+import sys,json; g=lambda **k: {'ok':True,'uuid':'mock-uuid'}; print(json.dumps(g(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
