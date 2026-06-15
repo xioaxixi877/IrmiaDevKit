@@ -1,0 +1,1 @@
+import sys,json,os; t=lambda r='.',**k: {'ok':True,'items':sorted(os.listdir(r))[:10]}; print(json.dumps(t(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
