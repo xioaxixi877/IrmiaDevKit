@@ -1,3 +1,6 @@
+using Alife.Framework.Core;
+using Alife.Framework.Handler;
+using Alife.Shared.Interface;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -6,69 +9,41 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using Alife.Framework;
-using Alife.Function.FunctionCaller;
-using Alife.Function.Interpreter;
 
-namespace Alife.Plugin.IrmiaDevKit;
+namespace Alife.Plugin.AlifePluginIrmiaDevKit;
 
-[Module("AlifePluginIrmiaDevKit", description: "IrmiaDevKit - 弥亚开发工具箱，提供46个Python开发工具")]
-public class IrmiaDevKitModule : InteractiveModule<IrmiaDevKitModule>
+[Module("AlifePluginIrmiaDevKit", description: "Alife.Plugin.IrmiaDevKit - 47个Python开发工具")]
+public sealed class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDevKitModule>
 {
-    private string _toolsDir;
-
-    public override async Task AwakeAsync(AwakeContext context)
-    {
-        await base.AwakeAsync(context);
-        _toolsDir = Path.Combine(
-            Path.GetDirectoryName(typeof(IrmiaDevKitModule).Assembly.Location) ?? ".",
-            "tools"
-        );
-        Prompt("IrmiaDevKit 已加载，提供46个Python开发工具");
-        var xmlHandler = new XmlHandler(this);
-        functionService.RegisterHandlerWithoutDocument(xmlHandler);
-    }
+    private static readonly string toolsDir = Path.Combine(
+        AppDomain.CurrentDomain.BaseDirectory, "Plugins", "Alife.Plugin.IrmiaDevKit", "tools"
+    );
+    private readonly JsonSerializerOptions _jsonOpts = new() { WriteIndented = false };
 
     private string FindPython()
     {
-        var candidates = new[]
-        {
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python312", "python.exe"),
-            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "Programs", "Python", "Python311", "python.exe"),
-            "python3",
-            "python"
-        };
-        foreach (var c in candidates)
+        foreach (var candidate in new[] { "python3", "python" })
         {
             try
             {
-                var p = new Process
+                var p = Process.Start(new ProcessStartInfo(candidate, "--version")
                 {
-                    StartInfo = new ProcessStartInfo(c, "--version")
-                    {
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    }
-                };
-                p.Start();
-                p.WaitForExit(3000);
-                if (p.ExitCode == 0) return c;
+                    RedirectStandardOutput = true, UseShellExecute = false, CreateNoWindow = true
+                });
+                p?.WaitForExit(2000);
+                if (p?.ExitCode == 0) return candidate;
             }
             catch { }
         }
         return "python";
     }
 
-    private async Task<string> RunTool(string toolName, string argsJson)
+    private string RunTool(string toolName, string args)
     {
-        var scriptPath = Path.Combine(_toolsDir, $"{toolName}.py");
-        if (!File.Exists(scriptPath))
-            return $"Error: tool {toolName}.py not found";
-
-        var python = FindPython();
-        var psi = new ProcessStartInfo(python, $"\"{scriptPath}\" \"{argsJson.Replace("\"", "\\\"")}\"")
+        var py = FindPython();
+        var script = Path.Combine(toolsDir, toolName + ".py");
+        if (!File.Exists(script)) return "{\"error\":\"tool " + toolName + " not found\"}";
+        var psi = new ProcessStartInfo(py, "\"" + script + "\" " + args)
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -77,37 +52,38 @@ public class IrmiaDevKitModule : InteractiveModule<IrmiaDevKitModule>
             StandardOutputEncoding = System.Text.Encoding.UTF8,
             StandardErrorEncoding = System.Text.Encoding.UTF8
         };
-
-        var proc = new Process { StartInfo = psi };
-        proc.Start();
-        var output = await proc.StandardOutput.ReadToEndAsync();
-        var error = await proc.StandardError.ReadToEndAsync();
-        proc.WaitForExit(30000);
-
-        return string.IsNullOrEmpty(error) ? output.Trim() : $"Error: {error.Trim()}";
+        using var proc = Process.Start(psi);
+        var stdout = proc?.StandardOutput.ReadToEnd() ?? "";
+        var stderr = proc?.StandardError.ReadToEnd() ?? "";
+        proc?.WaitForExit(15000);
+        var output = string.IsNullOrEmpty(stderr) ? stdout : stdout + "\\nSTDERR: " + stderr;
+        return string.IsNullOrEmpty(output) ? "{}" : output;
     }
 
     [XmlFunction(FunctionMode.OneShot)]
-    [Description("执行IrmiaDevKit开发工具箱中的指定工具")]
-    public async Task<string> ExecTool(
-        [Description("工具名称，如safe_edit、safe_write、rg_search等")] string tool,
-        [Description("JSON格式的参数，如{\"file\": \"test.txt\", \"content\": \"hello\"}")] string args
-    )
+    [Description("List all available dev tools")]
+    public async Task ListTools(XmlContext ctx)
     {
-        var result = await RunTool(tool, args);
-        return result;
-    }
-
-    [XmlFunction(FunctionMode.OneShot)]
-    [Description("获取IrmiaDevKit所有可用工具列表")]
-    public string ListTools()
-    {
-        if (!Directory.Exists(_toolsDir))
-            return "tools directory not found";
-        var tools = Directory.GetFiles(_toolsDir, "*.py")
+        if (!Directory.Exists(toolsDir))
+        {
+            await ctx.OutputAsync("{\"tools\":[],\"error\":\"tools dir not found:" + toolsDir + "\"}");
+            return;
+        }
+        var tools = Directory.GetFiles(toolsDir, "*.py")
             .Select(f => Path.GetFileNameWithoutExtension(f))
             .OrderBy(t => t)
             .ToList();
-        return $"可用工具({tools.Count}):\n" + string.Join("\n", tools);
+        var result = JsonSerializer.Serialize(new { tools, count = tools.Count }, _jsonOpts);
+        await ctx.OutputAsync(result);
+    }
+
+    [XmlFunction(FunctionMode.OneShot)]
+    [Description("Execute a dev tool with given arguments")]
+    public async Task ExecTool(XmlContext ctx,
+        [Description("tool name without .py")] string tool,
+        [Description("arguments passed to the tool")] string args = "")
+    {
+        var result = RunTool(tool, args);
+        await ctx.OutputAsync(result);
     }
 }
