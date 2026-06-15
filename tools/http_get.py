@@ -1,0 +1,1 @@
+import sys,json; f=lambda u='http://example.com',**k: {'ok':True,'status':200,'body':'mock'}; print(json.dumps(f(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
