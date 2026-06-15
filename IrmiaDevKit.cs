@@ -18,7 +18,7 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
 
     private string FindPython()
     {
-        foreach (var path in new[] { "python", "python3", "C:\\Python312\\python.exe", "C:\\Users\\Ha1hai\\AppData\\Local\\Programs\\Python\\Python312\\python.exe" })
+        foreach (var path in new[] { "python", "python3", "C:\Python312\python.exe", "C:\Users\Ha1hai\AppData\Local\Programs\Python\Python312\python.exe" })
         {
             try
             {
@@ -35,7 +35,7 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
         var py = FindPython();
         var script = Path.Combine(toolsDir, name + ".py");
         if (!File.Exists(script)) return $"工具 {name}.py 不存在";
-        var psi = new ProcessStartInfo(py, $"\"{script}\" {args}")
+        var psi = new ProcessStartInfo(py, $""{script}" {args}")
         {
             RedirectStandardOutput = true,
             RedirectStandardError = true,
@@ -70,7 +70,9 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
         {
             if (!Directory.Exists(toolsDir)) return $"tools目录不存在: {toolsDir}";
             var tools = Directory.GetFiles(toolsDir, "*.py").Select(Path.GetFileNameWithoutExtension).OrderBy(x => x).ToList();
-            return $"共 {tools.Count} 个工具:\n{string.Join("\n", tools)}";
+            return $"共 {tools.Count} 个工具:
+{string.Join("
+", tools)}";
         }
         catch (Exception ex) { return $"获取工具列表失败: {ex.Message}"; }
     }
