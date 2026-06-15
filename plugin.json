@@ -1,25 +1,15 @@
 {
-  "Id": "IrmiaDevKit",
-  "Name": "IrmiaDevKit",
-  "Description": "将弥亚开发工具箱移植为46个Python工具，提供文件操作、搜索、Git、数据库、HTTP、系统、数据处理、GitHub API等开发辅助功能",
-  "Version": "1.0.0",
-  "Authors": [
-    "Jiangtangxi"
-  ],
-  "Modules": [
-    {
-      "Name": "IrmiaDevKit",
-      "Description": "集成46个开发工具，通过XmlFunctionCaller注册所有功能调用",
-      "Type": "Module",
-      "Source": "IrmiaDevKit.cs"
+  "id": "AlifePluginIrmiaDevKit",
+  "name": "Alife.Plugin.IrmiaDevKit",
+  "author": "Jiangtangxi",
+  "maintainer": "Jiangtangxi",
+  "description": "重写为[XmlFunction]属性注册方式，提供ExecTool和ListTools两个公开接口，调用47个Python开发工具。遵循Alife.Plugin命名规范",
+  "defaultCategory": "用户自制/开发工具",
+  "releases": {
+    "1.0.3": {
+      "date": "2026-06-15",
+      "note": "统一命名为Alife.Plugin.IrmiaDevKit，与ImageGen规范一致。重写为[XmlFunction]属性注册方式，单入口ExecTool调用47个工具",
+      "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
     }
-  ],
-  "Dependencies": [],
-  "Tags": [
-    "tools",
-    "github",
-    "development",
-    "utilities"
-  ],
-  "InstallPath": "IrmiaDevKit"
+  }
 }
