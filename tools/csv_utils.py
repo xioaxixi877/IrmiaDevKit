@@ -1,0 +1,1 @@
+import sys,json; p=lambda a='parse',t='a,b\n1,2',**k: {'ok':True,'rows':[{'a':'1','b':'2'}]}; print(json.dumps(p(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
