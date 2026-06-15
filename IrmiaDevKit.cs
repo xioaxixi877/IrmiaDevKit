@@ -6,52 +6,67 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
+using System.Text;
+using System.Threading;
 
 namespace Alife.Plugin.AlifePluginIrmiaDevKit;
 
-[Module("AlifePluginIrmiaDevKit", description: "IrmiaDevKit - 47个Python开发工具")]
-public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDevKitModule>
+[Module("IrmiaDevKit", description: "IrmiaDevKit - 47个Python开发工具，ExecTool+ListTools双接口")]
+public class IrmiaDevKitModule : InteractiveModule<IrmiaDevKitModule>
 {
-    private static readonly string toolsDir = Path.Combine(
-        AppDomain.CurrentDomain.BaseDirectory,
-        "Plugins",
-        "Alife.Plugin.IrmiaDevKit",
-        "tools"
-    );
-
-    private string FindPython()
+    public override async Task AwakeAsync(AwakeContext context)
     {
-        var paths = new[] { "python", "python3" };
-        foreach (var path in paths)
+        var handler = new XmlHandler(this);
+        handler.RegisterHandlerWithoutDocument("exec", ExecTool);
+        handler.RegisterHandlerWithoutDocument("list", ListTools);
+        Logger.RegisterModule(this);
+    }
+
+    string FindPython()
+    {
+        var paths = new[] { "python3", "python" };
+        foreach (var p in paths)
         {
             try
             {
-                var psi = new ProcessStartInfo(path, "--version");
+                var psi = new ProcessStartInfo(p, "--version");
                 psi.RedirectStandardOutput = true;
+                psi.RedirectStandardError = true;
                 psi.CreateNoWindow = true;
                 using var proc = Process.Start(psi);
-                if (proc != null)
-                {
-                    proc.WaitForExit(2000);
-                    if (proc.ExitCode == 0) return path;
-                }
+                if (proc != null) return p;
             }
             catch { }
         }
         return "python";
     }
 
-    private string RunTool(string name, string args)
+    [XmlFunction(FunctionMode.OneShot)]
+    [Description("执行一个Python工具: args=[工具名] [参数...]")]
+    public string ExecTool(string args)
     {
-        var py = FindPython();
+        var parts = args.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 0) return "用法: exec 工具名 [参数]";
+        var name = parts[0];
+        var toolArgs = parts.Length > 1 ? parts[1] : "";
+
+        var toolsDir = Path.Combine(AlifeDirectory.StorageDirectory, "Skills", "irmia_devkit_open", "tools");
+        if (!Directory.Exists(toolsDir))
+        {
+            toolsDir = Path.Combine(Environment.CurrentDirectory, "tools");
+            if (!Directory.Exists(toolsDir)) return "tools目录不存在";
+        }
+
         var script = Path.Combine(toolsDir, name + ".py");
         if (!File.Exists(script)) return "工具 " + name + ".py 不存在";
-        var psi = new ProcessStartInfo(py, """ + script + "" " + args);
+
+        var py = FindPython();
+        var psi = new ProcessStartInfo(py, "\"" + script + "\" " + toolArgs);
         psi.RedirectStandardOutput = true;
         psi.RedirectStandardError = true;
         psi.CreateNoWindow = true;
-        psi.StandardOutputEncoding = System.Text.Encoding.UTF8;
-        psi.StandardErrorEncoding = System.Text.Encoding.UTF8;
+        psi.StandardOutputEncoding = Encoding.UTF8;
+        psi.StandardErrorEncoding = Encoding.UTF8;
         using var proc = Process.Start(psi);
         if (proc == null) return "启动失败";
         proc.WaitForExit(60000);
@@ -62,27 +77,19 @@ public class AlifePluginIrmiaDevKitModule : InteractiveModule<AlifePluginIrmiaDe
     }
 
     [XmlFunction(FunctionMode.OneShot)]
-    [Description("执行IrmiaDevKit工具，参数: toolName=工具名称 toolArgs=传给py的参数")]
-    public string ExecTool(string toolName, string toolArgs = "")
+    [Description("列出所有可用的Python工具")]
+    public string ListTools(string args)
     {
-        try
+        var toolsDir = Path.Combine(AlifeDirectory.StorageDirectory, "Skills", "irmia_devkit_open", "tools");
+        if (!Directory.Exists(toolsDir))
         {
-            if (!Directory.Exists(toolsDir)) return "tools目录不存在: " + toolsDir;
-            return RunTool(toolName, toolArgs);
+            toolsDir = Path.Combine(Environment.CurrentDirectory, "tools");
+            if (!Directory.Exists(toolsDir)) return "tools目录不存在";
         }
-        catch (Exception ex) { return "执行失败: " + ex.Message; }
-    }
-
-    [XmlFunction(FunctionMode.OneShot)]
-    [Description("列出所有可用工具(47个Python脚本)")]
-    public string ListTools()
-    {
-        try
-        {
-            if (!Directory.Exists(toolsDir)) return "tools目录不存在: " + toolsDir;
-            var tools = Directory.GetFiles(toolsDir, "*.py").Select(Path.GetFileNameWithoutExtension).OrderBy(x => x).ToList();
-            return "共 " + tools.Count + " 个工具:\n" + string.Join("\n", tools);
-        }
-        catch (Exception ex) { return "获取工具列表失败: " + ex.Message; }
+        var tools = Directory.GetFiles(toolsDir, "*.py")
+            .Select(Path.GetFileNameWithoutExtension)
+            .OrderBy(x => x)
+            .ToList();
+        return "可用工具(" + tools.Count + "个): " + string.Join(", ", tools);
     }
 }
