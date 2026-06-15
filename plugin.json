@@ -1,16 +1,18 @@
 {
   "id": "AlifePluginIrmiaDevKit",
-  "name": "Alife.Plugin.IrmiaDevKit",
+  "name": "IrmiaDevKit",
+  "version": "1.0.5",
+  "description": "IrmiaDevKit - 47个Python开发工具 (移植自irmia_devkit_open)",
   "author": "Jiangtangxi",
-  "maintainer": "Jiangtangxi",
-  "description": "XmlFunction属性注册，ExecTool+ListTools双接口，47个Python开发工具",
-  "defaultCategory": "用户自制/开发工具",
-  "releases": {
-    "1.0.3": {
-      "date": "2026-06-15",
-      "note": "统一命名为Alife.Plugin.IrmiaDevKit",
-      "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
-    }
+  "repository": "https://github.com/xioaxixi877/IrmiaDevKit",
+  "release": {
+    "file": "https://github.com/xioaxixi877/IrmiaDevKit/archive/refs/heads/main.zip"
   },
-  "version": "1.0.5"
+  "category": "工具",
+  "tags": [
+    "python",
+    "tools",
+    "devkit",
+    "irmia"
+  ]
 }
