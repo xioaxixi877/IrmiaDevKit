@@ -1,0 +1,1 @@
+import sys,json,os; d=lambda **k: {'ok':True,'drives':[{'drive':'C:','total':1e9}]}; print(json.dumps(d(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
