@@ -1,0 +1,1 @@
+import sys,json; s=lambda a='status',**k: {'ok':True,'action':a}; print(json.dumps(s(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
