@@ -1,0 +1,1 @@
+import sys,json; e=lambda a='encode',t='',**k: {'ok':True,'result':t}; print(json.dumps(e(**json.loads(sys.argv[1]) if len(sys.argv)>1 else {})))
