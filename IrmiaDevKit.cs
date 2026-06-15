@@ -6,13 +6,13 @@ using System.Threading.Tasks;
 using System.Diagnostics;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using Alife.Framework;
-using Alife.Framework.Module;
+
+using Alife.Platform;
 
 namespace IrmiaDevKit
 {
-    [Module("IrmiaDevKit")]
-    public class IrmiaDevKitModule : InteractiveModule<object>
+    [Module("IrmiaDevKit", description: "IrmiaDevKit - 弥亚开发工具箱，提供46个Python开发工具")]
+    public class IrmiaDevKitModule : InteractiveModule
     {
         private readonly Dictionary<string, Func<JObject, Task<string>>> _tools = new();
         private string _toolsDir;
@@ -83,7 +83,7 @@ namespace IrmiaDevKit
         {
             foreach (var kv in _tools)
             {
-                RegisterXmlFunction(kv.Key, kv.Value);
+                RegisterTool(kv.Key, kv.Value);
             }
         }
 
